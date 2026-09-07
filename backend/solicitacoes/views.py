@@ -5,6 +5,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from .models import Solicitacao, HistoricoStatus, Comentario
+from .permissions import IsAutorOrReadOnly
 from .serializers import (
     SolicitacaoSerializer,
     SolicitacaoDetailSerializer,
@@ -21,7 +22,7 @@ class SolicitacaoFilter(django_filters.FilterSet):
 class SolicitacaoViewSet(viewsets.ModelViewSet):
     queryset = Solicitacao.objects.all().order_by('-criado_em')
     serializer_class = SolicitacaoSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsAutorOrReadOnly]
     filterset_class = SolicitacaoFilter
     filter_backends = [django_filters.DjangoFilterBackend, filters.SearchFilter]
     search_fields = ['titulo']
