@@ -5,8 +5,8 @@ import Detalhe from './views/Detalhe.vue'
 
 const routes = [
   { path: '/login', name: 'login', component: Login },
-  { path: '/', name: 'lista', component: Lista },
-  { path: '/solicitacoes/:id', name: 'detalhe', component: Detalhe },
+  { path: '/', name: 'lista', component: Lista, meta: { requiresAuth: true } },
+  { path: '/solicitacoes/:id', name: 'detalhe', component: Detalhe, meta: { requiresAuth: true } },
 ]
 
 const router = createRouter({
@@ -14,7 +14,16 @@ const router = createRouter({
   routes,
 })
 
-// NOTE: não há nenhum guard global (router.beforeEach) verificando se o
-// usuário está autenticado antes de acessar rotas como "/" ou "/solicitacoes/:id".
+// Guard global: bloqueia rotas protegidas para usuários não autenticados e
+// evita que um usuário já logado volte para a tela de login.
+router.beforeEach((to) => {
+  const autenticado = !!localStorage.getItem('access_token')
+  if (to.meta.requiresAuth && !autenticado) {
+    return { name: 'login' }
+  }
+  if (to.name === 'login' && autenticado) {
+    return { name: 'lista' }
+  }
+})
 
 export default router

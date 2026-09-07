@@ -65,27 +65,62 @@ No seu fork/branch, inclua um `RELATORIO.md` (ou seção no README) descrevendo:
 
 ## 6. Como rodar o projeto
 
+### Pré-requisitos
+- **Docker Desktop** instalado e **em execução** (o ícone da baleia deve indicar "Engine running").
+
+### Passo a passo
+
+**1. Subir a aplicação** — na raiz do projeto (onde está o `docker-compose.yml`):
+
 ```bash
-docker-compose up --build
+docker compose up --build
 ```
 
-- Backend: `http://localhost:8000/api/`
-- Frontend: `http://localhost:5173`
-- Admin do Django: `http://localhost:8000/admin/`
+> Na primeira vez o build baixa as imagens e instala as dependências — pode levar alguns minutos. Ao subir, o backend **já aplica as migrations e carrega o seed automaticamente**.
+> Para rodar em segundo plano, adicione `-d`: `docker compose up --build -d`.
+
+**2. Acessar** (após os containers ficarem de pé):
+
+| Serviço            | URL                            |
+|--------------------|--------------------------------|
+| Frontend (Vue)     | http://localhost:5173          |
+| API (Django REST)  | http://localhost:8000/api/     |
+| Admin do Django    | http://localhost:8000/admin/   |
 
 **Usuários de teste (já no seed):**
 
-| Usuário | Senha    |
-|---------|----------|
-| ana     | senha123 |
-| bruno   | senha123 |
-| admin   | admin123 (superusuário) |
+| Usuário | Senha    | Observação      |
+|---------|----------|-----------------|
+| ana     | senha123 | usuário comum   |
+| bruno   | senha123 | usuário comum   |
+| admin   | admin123 | superusuário    |
 
-Para rodar os testes do backend:
+**3. Parar a aplicação:**
 
 ```bash
-docker-compose exec backend python manage.py test
+docker compose down        # para e remove os containers
+docker compose down -v     # idem, e apaga também o banco (volume) para recomeçar do zero
 ```
+
+### Rodar os testes do backend
+
+Com os containers no ar:
+
+```bash
+docker compose exec backend python manage.py test
+```
+
+Para rodar um único teste (útil ao corrigir um problema específico):
+
+```bash
+docker compose exec backend python manage.py test solicitacoes.tests.SolicitacaoTestCase.test_delete_deve_ser_soft_delete
+```
+
+### Problemas comuns
+- **`error during connect ... dockerDesktopLinuxEngine`**: o Docker Desktop não está rodando. Abra-o e aguarde o status "Engine running".
+- **Porta em uso (5432 / 8000 / 5173)**: outro serviço já ocupa a porta — feche-o ou ajuste o mapeamento no `docker-compose.yml`.
+
+> Em versões recentes o comando é `docker compose` (com espaço). Se a sua usar o binário antigo, troque por `docker-compose`.
 
 ---
 

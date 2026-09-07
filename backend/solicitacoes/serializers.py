@@ -1,19 +1,17 @@
-from django.contrib.auth.models import User
 from rest_framework import serializers
 from .models import Solicitacao, HistoricoStatus, Comentario
 
 
 class ComentarioSerializer(serializers.ModelSerializer):
-    autor_nome = serializers.SerializerMethodField()
+    # Usa o relacionamento direto em vez de buscar o User manualmente. Combinado
+    # com prefetch_related('comentarios__autor') na view, evita o N+1 que havia
+    # quando cada comentário disparava sua própria query.
+    autor_nome = serializers.CharField(source='autor.username', read_only=True)
 
     class Meta:
         model = Comentario
         fields = ['id', 'texto', 'autor', 'autor_nome', 'criado_em']
         read_only_fields = ['autor', 'criado_em']
-
-    def get_autor_nome(self, obj):
-        # NOTE: isso dispara uma query por comentário quando serializado em lista.
-        return User.objects.get(pk=obj.autor_id).username
 
 
 class HistoricoStatusSerializer(serializers.ModelSerializer):
@@ -33,9 +31,27 @@ class SolicitacaoSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['autor', 'criado_em', 'atualizado_em']
 
-    # NOTE: não há validação de tamanho mínimo/vazio para "titulo" além do
-    # que o Django já garante por padrão (blank=False implícito no CharField).
-    # Verificar se isso é suficiente para as regras de negócio pedidas.
+    def validate(self, attrs):
+        # Regra: não é permitido reabrir uma solicitação concluída indo
+        # diretamente de 'concluida' para 'aberta'.
+        if self.instance is not None:
+            status_atual = self.instance.status
+            status_novo = attrs.get('status', status_atual)
+            if status_atual == 'concluida' and status_novo == 'aberta':
+                raise serializers.ValidationError({
+                    'status': 'Não é permitido reabrir uma solicitação concluída diretamente.'
+                })
+        return attrs
+
+    def validate_titulo(self, value):
+        # Regra: o título não pode ser vazio ou conter apenas espaços.
+        # Também normaliza removendo os espaços das pontas antes de salvar.
+        titulo = value.strip()
+        if not titulo:
+            raise serializers.ValidationError(
+                'O título não pode ficar vazio ou conter apenas espaços.'
+            )
+        return titulo
 
 
 class SolicitacaoDetailSerializer(SolicitacaoSerializer):

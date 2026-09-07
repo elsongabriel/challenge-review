@@ -24,6 +24,9 @@ class Solicitacao(models.Model):
     autor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='solicitacoes')
     criado_em = models.DateTimeField(auto_now_add=True)
     atualizado_em = models.DateTimeField(auto_now=True)
+    # Soft delete: quando preenchido, a solicitação foi "excluída" mas
+    # permanece no banco. null = solicitação ativa.
+    excluido_em = models.DateTimeField(null=True, blank=True, default=None)
 
     def __str__(self):
         return self.titulo

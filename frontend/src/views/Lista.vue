@@ -59,9 +59,9 @@ async function carregar() {
   try {
     const response = await api.get('/solicitacoes/', {
       params: {
-        // NOTE: conferir se esses nomes de parâmetro batem com o que a
-        // API espera (ver SolicitacaoFilter / search_fields no backend).
-        titulo: busca.value || undefined,
+        // O backend usa SearchFilter (search_fields = ['titulo']), cujo
+        // parâmetro padrão é "search"; status e prioridade vêm do FilterSet.
+        search: busca.value || undefined,
         status: statusFiltro.value || undefined,
         prioridade: prioridadeFiltro.value || undefined,
       },
