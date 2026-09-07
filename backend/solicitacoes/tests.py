@@ -71,3 +71,15 @@ class SolicitacaoTestCase(APITestCase):
             format='json',
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_permite_transicao_de_status_valida(self):
+        """Uma transição permitida (ex.: concluida -> em_andamento) deve funcionar."""
+        self.solicitacao.status = 'concluida'
+        self.solicitacao.save()
+        self.autenticar(self.user1)
+        response = self.client.patch(
+            f'/api/solicitacoes/{self.solicitacao.id}/',
+            {'status': 'em_andamento'},
+            format='json',
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)

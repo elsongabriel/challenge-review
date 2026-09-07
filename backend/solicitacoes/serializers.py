@@ -33,6 +33,18 @@ class SolicitacaoSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['autor', 'criado_em', 'atualizado_em']
 
+    def validate(self, attrs):
+        # Regra: não é permitido reabrir uma solicitação concluída indo
+        # diretamente de 'concluida' para 'aberta'.
+        if self.instance is not None:
+            status_atual = self.instance.status
+            status_novo = attrs.get('status', status_atual)
+            if status_atual == 'concluida' and status_novo == 'aberta':
+                raise serializers.ValidationError({
+                    'status': 'Não é permitido reabrir uma solicitação concluída diretamente.'
+                })
+        return attrs
+
     # NOTE: não há validação de tamanho mínimo/vazio para "titulo" além do
     # que o Django já garante por padrão (blank=False implícito no CharField).
     # Verificar se isso é suficiente para as regras de negócio pedidas.
