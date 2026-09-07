@@ -1,0 +1,95 @@
+[
+{
+  "model": "auth.user",
+  "pk": 1,
+  "fields": {
+    "password": "pbkdf2_sha256$720000$OKBRjJPTKcyxosTwzju80a$K/8G/Q0n33RJhgCBeROsX9oOvw/ro7lHm690PaQ6Qic=",
+    "last_login": null,
+    "is_superuser": true,
+    "username": "admin",
+    "first_name": "",
+    "last_name": "",
+    "email": "admin@example.com",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2026-09-02T19:48:16.655Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "pk": 2,
+  "fields": {
+    "password": "pbkdf2_sha256$720000$jEwmnWGMa4fhZDxLlQmzpB$WVb/HZJKp6bO7vU2MBwCFXvybGGdkhiedxSz0hq+J94=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "ana",
+    "first_name": "",
+    "last_name": "",
+    "email": "ana@example.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-09-02T19:48:16.850Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "pk": 3,
+  "fields": {
+    "password": "pbkdf2_sha256$720000$4kBd52cIRpigh6mJga6lYl$ggZmTZqnOoB5Fwodz3w4l7CYrDZKXXMwo3zcnQPqRfo=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "bruno",
+    "first_name": "",
+    "last_name": "",
+    "email": "bruno@example.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-09-02T19:48:17.072Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "solicitacoes.solicitacao",
+  "pk": 1,
+  "fields": {
+    "titulo": "Acesso ao sistema financeiro",
+    "descricao": "Preciso de acesso para consultar relatórios.",
+    "status": "aberta",
+    "prioridade": "alta",
+    "autor": 2,
+    "criado_em": "2026-09-02T19:48:17.332Z",
+    "atualizado_em": "2026-09-02T19:48:17.332Z"
+  }
+},
+{
+  "model": "solicitacoes.solicitacao",
+  "pk": 2,
+  "fields": {
+    "titulo": "Reset de senha do VPN",
+    "descricao": "Esqueci a senha da VPN corporativa.",
+    "status": "em_andamento",
+    "prioridade": "media",
+    "autor": 3,
+    "criado_em": "2026-09-02T19:48:17.334Z",
+    "atualizado_em": "2026-09-02T19:48:17.334Z"
+  }
+},
+{
+  "model": "solicitacoes.solicitacao",
+  "pk": 3,
+  "fields": {
+    "titulo": "Solicitação de novo notebook",
+    "descricao": "Notebook atual apresentando falhas.",
+    "status": "concluida",
+    "prioridade": "baixa",
+    "autor": 2,
+    "criado_em": "2026-09-02T19:48:17.335Z",
+    "atualizado_em": "2026-09-02T19:48:17.335Z"
+  }
+}
+]
