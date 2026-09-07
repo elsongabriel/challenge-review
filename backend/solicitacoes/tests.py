@@ -52,6 +52,14 @@ class SolicitacaoTestCase(APITestCase):
             'A solicitação foi removida do banco — esperado soft delete.',
         )
 
+    def test_solicitacao_excluida_nao_aparece_na_listagem(self):
+        """Após o soft delete, a solicitação não deve mais aparecer na listagem."""
+        self.autenticar(self.user1)
+        self.client.delete(f'/api/solicitacoes/{self.solicitacao.id}/')
+        response = self.client.get('/api/solicitacoes/')
+        ids = [s['id'] for s in response.data]
+        self.assertNotIn(self.solicitacao.id, ids)
+
     def test_nao_permite_reabrir_solicitacao_concluida_diretamente(self):
         """Regra: não deve ser possível ir de 'concluida' para 'aberta' direto."""
         self.solicitacao.status = 'concluida'

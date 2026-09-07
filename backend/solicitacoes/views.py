@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from django.utils import timezone
 from django_filters import rest_framework as django_filters
 from rest_framework import viewsets, permissions, filters, status
 from rest_framework.decorators import action
@@ -20,7 +21,7 @@ class SolicitacaoFilter(django_filters.FilterSet):
 
 
 class SolicitacaoViewSet(viewsets.ModelViewSet):
-    queryset = Solicitacao.objects.all().order_by('-criado_em')
+    queryset = Solicitacao.objects.filter(excluido_em__isnull=True).order_by('-criado_em')
     serializer_class = SolicitacaoSerializer
     permission_classes = [permissions.IsAuthenticated, IsAutorOrReadOnly]
     filterset_class = SolicitacaoFilter
@@ -49,7 +50,10 @@ class SolicitacaoViewSet(viewsets.ModelViewSet):
             )
 
     def perform_destroy(self, instance):
-        instance.delete()
+        # Soft delete: mantém o registro no banco e apenas marca a data de
+        # exclusão. A listagem já filtra as solicitações com excluido_em preenchido.
+        instance.excluido_em = timezone.now()
+        instance.save()
 
     @action(detail=True, methods=['post'])
     def comentar(self, request, pk=None):
