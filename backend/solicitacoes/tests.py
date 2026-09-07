@@ -1,7 +1,9 @@
 from django.contrib.auth.models import User
+from django.db import connections
+from django.test.utils import CaptureQueriesContext
 from rest_framework.test import APITestCase
 from rest_framework import status
-from .models import Solicitacao
+from .models import Solicitacao, Comentario
 
 
 class SolicitacaoTestCase(APITestCase):
@@ -93,3 +95,21 @@ class SolicitacaoTestCase(APITestCase):
             format='json',
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def _queries_no_detalhe(self, num_comentarios):
+        solic = Solicitacao.objects.create(titulo='Com comentarios', autor=self.user1)
+        for i in range(num_comentarios):
+            Comentario.objects.create(solicitacao=solic, autor=self.user2, texto=f'c{i}')
+        self.autenticar(self.user1)
+        with CaptureQueriesContext(connections['default']) as ctx:
+            self.client.get(f'/api/solicitacoes/{solic.id}/')
+        return len(ctx.captured_queries)
+
+    def test_detalhe_nao_faz_query_por_comentario(self):
+        """O nº de queries do detalhe não deve crescer com a quantidade de comentários (N+1)."""
+        poucos = self._queries_no_detalhe(2)
+        muitos = self._queries_no_detalhe(10)
+        self.assertEqual(
+            poucos, muitos,
+            f'Query count cresceu com o nº de comentários ({poucos} -> {muitos}): possível N+1.',
+        )

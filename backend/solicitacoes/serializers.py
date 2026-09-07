@@ -1,19 +1,17 @@
-from django.contrib.auth.models import User
 from rest_framework import serializers
 from .models import Solicitacao, HistoricoStatus, Comentario
 
 
 class ComentarioSerializer(serializers.ModelSerializer):
-    autor_nome = serializers.SerializerMethodField()
+    # Usa o relacionamento direto em vez de buscar o User manualmente. Combinado
+    # com prefetch_related('comentarios__autor') na view, evita o N+1 que havia
+    # quando cada comentário disparava sua própria query.
+    autor_nome = serializers.CharField(source='autor.username', read_only=True)
 
     class Meta:
         model = Comentario
         fields = ['id', 'texto', 'autor', 'autor_nome', 'criado_em']
         read_only_fields = ['autor', 'criado_em']
-
-    def get_autor_nome(self, obj):
-        # NOTE: isso dispara uma query por comentário quando serializado em lista.
-        return User.objects.get(pk=obj.autor_id).username
 
 
 class HistoricoStatusSerializer(serializers.ModelSerializer):
