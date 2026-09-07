@@ -45,9 +45,15 @@ class SolicitacaoSerializer(serializers.ModelSerializer):
                 })
         return attrs
 
-    # NOTE: não há validação de tamanho mínimo/vazio para "titulo" além do
-    # que o Django já garante por padrão (blank=False implícito no CharField).
-    # Verificar se isso é suficiente para as regras de negócio pedidas.
+    def validate_titulo(self, value):
+        # Regra: o título não pode ser vazio ou conter apenas espaços.
+        # Também normaliza removendo os espaços das pontas antes de salvar.
+        titulo = value.strip()
+        if not titulo:
+            raise serializers.ValidationError(
+                'O título não pode ficar vazio ou conter apenas espaços.'
+            )
+        return titulo
 
 
 class SolicitacaoDetailSerializer(SolicitacaoSerializer):
